@@ -1,0 +1,556 @@
+ 
+ <!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>محرك البحث - سليمان عيد سليمان</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Cairo', Arial, sans-serif;
+      background: #e9f0ff;
+      margin: 0;
+      padding: 0 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      color: #222;
+      position: relative;
+      padding-bottom: 100px; /* مساحة للتذييل */
+    }
+    .profile-pic {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      margin-top: 15px;
+      border: 5px solid #2a6df4;
+      box-shadow: 0 4px 12px rgba(42,109,244,0.3);
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    .profile-pic:hover {
+      transform: scale(1.05);
+    }
+    h1 {
+      margin: 15px 0 30px;
+      font-weight: 700;
+      font-size: 32px;
+      color: #2a6df4;
+      text-align: center;
+      letter-spacing: 1.2px;
+    }
+    .search-container {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+    }
+    #search-input {
+      width: 100%;
+      padding: 14px 50px 14px 20px;
+      font-size: 18px;
+      border-radius: 35px;
+      border: 2px solid #2a6df4;
+      box-shadow: 0 4px 15px rgba(42,109,244,0.15);
+      outline: none;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    #search-input:focus {
+      border-color: #164db7;
+      box-shadow: 0 6px 20px rgba(22,77,183,0.4);
+    }
+    #mic-button {
+      position: absolute;
+      top: 50%;
+      left: 2px;
+      transform: translateY(-50%);
+      background: #2a6df4;
+      border: none;
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(42,109,244,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s ease;
+      color: white;
+      font-size: 20px;
+      user-select: none;
+      z-index: 2;
+    }
+    #mic-button.recording {
+      background-color: #d62828;
+      box-shadow: 0 4px 15px rgba(214,40,40,0.6);
+      animation: pulse 1.2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 12px 2px rgba(214,40,40,0.7); }
+      50% { box-shadow: 0 0 25px 5px rgba(214,40,40,1); }
+    }
+    .search-buttons {
+      margin-top: 18px;
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .search-buttons button {
+      background-color: #2a6df4;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(42,109,244,0.3);
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .search-buttons button:hover {
+      background-color: #164db7;
+      transform: scale(1.05);
+    }
+    .search-buttons button:focus {
+      outline: none;
+      box-shadow: 0 0 10px 3px rgba(22,77,183,0.7);
+    }
+    .search-buttons button[title] {
+      position: relative;
+    }
+    .search-buttons button[title]:hover::after {
+      content: attr(title);
+      position: absolute;
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #164db7;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      pointer-events: none;
+      z-index: 10;
+      opacity: 0.95;
+    }
+
+    @media (max-width: 480px) {
+      #search-input {
+        font-size: 16px;
+        padding: 12px 45px 12px 15px;
+      }
+      .search-buttons {
+        gap: 8px;
+      }
+      .search-buttons button {
+        padding: 8px 14px;
+        font-size: 13px;
+      }
+    }
+
+    /* Footer styles */
+    footer {
+      width: 100%;
+      max-width: 600px;
+      margin-top: auto;
+      padding: 20px 15px;
+      background-color: #2a6df4;
+      color: white;
+      text-align: center;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(42,109,244,0.4);
+      font-size: 14px;
+      user-select: none;
+    }
+    footer .contact-info {
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    footer .social-icons {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    footer .social-icons a {
+      color: white;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    footer .social-icons a:hover {
+      color: #ffc107;
+    }
+  </style>
+</head>
+<body>
+
+  <img src="IMG.sole.com.jpg" alt="صورة سليمان عيد سليمان" class="profile-pic" />
+  <h1>SLOEMAN EID</h1>
+
+  <div class="search-container">
+    <input type="text" id="search-input" placeholder="اكتب ما تريد البحث عنه واضغط Enter أو اختر نوع البحث" onkeydown="if(event.key === 'Enter') performSearch()" aria-label="مربع البحث" />
+    <button id="mic-button" onclick="startVoiceInput()" aria-label="البحث بالصوت" title="اضغط للتحدث">🎤</button>
+<script>
+  function performSearch(type = 'all', useSameWindow = false) {
+    const input = document.getElementById('search-input');
+    const query = input.value.trim();
+    if (!query) return;
+
+    let url = '';
+
+    switch(type) {
+      case 'news':
+        url = `https://www.google.com/search?q=${encodeURIComponent(query)}&tbm=nws`;
+        break;
+      case 'images':
+        url = `https://www.google.com/search?q=${encodeURIComponent(query)}&tbm=isch`;
+        break;
+      case 'videos':
+        url = `https://www.google.com/search?q=${encodeURIComponent(query)}&tbm=vid`;
+        break;
+      case 'movies':
+        url = `https://www.google.com/search?q=${encodeURIComponent(query + ' أفلام')}`;
+        break;
+      case 'games':
+        url = `https://www.google.com/search?q=${encodeURIComponent(query + ' ألعاب')}`;
+        break;
+      case 'apps':
+        url = `https://www.google.com/search?q=${encodeURIComponent(query + ' تطبيقات')}`;
+        break;
+      default:
+        url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+    }
+
+    if (useSameWindow) {
+      window.location.href = url; // الانتقال مباشرة في نفس الصفحة
+    } else {
+      window.open(url, '_blank'); // فتح في صفحة جديدة
+    }
+  }
+
+  function startVoiceInput() {
+    const input = document.getElementById('search-input');
+    const micBtn = document.getElementById('mic-button');
+
+    if (!('webkitSpeechRecognition' in window)) {
+      alert('المتصفح لا يدعم الميكروفون');
+      return;
+    }
+
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = 'ar-EG';
+
+    recognition.onstart = () => {
+      micBtn.classList.add('recording');
+      micBtn.title = "التسجيل جاري... اضغط لإيقاف";
+    };
+
+    recognition.onend = () => {
+      micBtn.classList.remove('recording');
+      micBtn.title = "اضغط للتحدث";
+    };
+
+    recognition.onresult = function(event) {
+      input.value = event.results[0][0].transcript;
+      performSearch('all', true); // فتح النتيجة في نفس الصفحة
+    };
+
+    recognition.onerror = function() {
+      alert('حدث خطأ في التسجيل الصوتي');
+      micBtn.classList.remove('recording');
+      micBtn.title = "اضغط للتحدث";
+    };
+
+    recognition.start();
+  }
+</script>
+
+
+
+    <div class="search-buttons" role="group" aria-label="خيارات البحث">
+      <button onclick="performSearch('all')" title="بحث عام في الإنترنت">بحث عام</button>
+      <button onclick="performSearch('news')" title="بحث في الأخبار">الأخبار</button>
+      <button onclick="performSearch('images')" title="بحث في الصور">الصور</button>
+      <button onclick="performSearch('videos')" title="بحث في الفيديو">الفيديو</button>
+      <button onclick="performSearch('movies')" title="بحث في الأفلام">الأفلام</button>
+      <button onclick="performSearch('games')" title="بحث في الألعاب">الألعاب</button>
+      <button onclick="performSearch('apps')" title="بحث في التطبيقات">التطبيقات</button>
+    </div>
+  </div>
+ 
+    <!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head><!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>اسم الصفحة</title>
+  <style>
+    nav {
+      margin: 20px 0;
+      text-align: center;
+      font-size: 18px;
+      background-color: #f1f1f1;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    nav a {
+      margin: 0 15px;
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+    }
+    nav a:hover {
+      color: #007BFF;
+    }
+  </style>
+</head>
+<body>
+  <!-- ✅ شريط التنقل -->
+  <nav>
+    <a href="index.html">🏠 الصفحة الرئيسية</a>
+    <a href="indx.html">📄السيرة الذاتيةللمصم الموقع: سليمان عيد سليمان ة</a>
+    <a href="indext.html">⬇️ مركز التحميل</a>
+  </nav>
+  <!-- باقي محتوى الصفحة هنا -->
+</body>
+</html>
+
+  <meta charset="UTF-8" />
+  <title>السيرة الذاتية - سليمان عيد سليمان سالم</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Cairo', Arial, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 40px 20px 100px; /* اضافة مساحة اسفل للتذييل */
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+      position: relative;
+    }
+    .circle-container {
+      width: 480px;
+      height: 480px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      padding: 40px 60px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    h1 {
+      color: #2a6df4;
+      margin-bottom: 15px;
+      font-weight: 700;
+      font-size: 32px;
+    }
+    hr {
+      border: none;
+      border-top: 2px solid #2a6df4;
+      width: 60px;
+      margin: 10px auto 30px;
+      border-radius: 3px;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .section h2 {
+      color: #164db7;
+      font-weight: 600;
+      margin-bottom: 10px;
+      border-bottom: 2px solid #164db7;
+      padding-bottom: 5px;
+    }
+    .section p {
+      line-height: 1.6;
+      font-size: 17px;
+      margin: 0;
+    }
+    .highlight {
+      color: #2a6df4;
+      font-weight: 600;
+    }
+    /* scrollbar for overflow */
+    .circle-container::-webkit-scrollbar {
+      width: 8px;
+    }
+    .circle-container::-webkit-scrollbar-thumb {
+      background-color: #2a6df4;
+      border-radius: 4px;
+    }
+
+    /* Footer styles */
+    footer {
+      width: 100%;
+      max-width: 600px;
+      padding: 20px 15px;
+      background-color: #2a6df4;
+      color: white;
+      text-align: center;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(42,109,244,0.4);
+      font-size: 14px;
+      user-select: none;
+    }
+    footer .contact-info {
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    footer .social-icons {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    footer .social-icons a {
+      color: white;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    footer .social-icons a:hover {
+      color: #ffc107;
+    }
+  </style>
+</head>
+<body>
+  <div class="circle-container" role="main" aria-label="السيرة الذاتية الخاصة بسليمان عيد سليمان سالم">
+    <h1>  السيرة الذاتية</h1>
+    <hr />
+    
+    <div class="section">
+      <h2>المعلومات الشخصية</h2>
+      <p>الاسم: <span class="highlight">سليمان عيد سليمان سالم</span></p>
+      <p>المسمى الوظيفي: طالب جامعي</p>
+      <P> جامعة: جامعة عين شمس كلية تكنولوجي</p>
+        <p>التعليم الرقمي</p>
+    
+      <p>2314097:الكود الجامعي</p>
+      <p>المستوى: الثالث الفصل الثاني</p> 
+      <p>اسم المقرر: تصميم المواقع<p>
+       <P>دكتور المقرر: محمدعنتر    ع<p>
+    <div class="section">
+      <h2>المهارات</h2>
+      <p>التعامل مع HTML وCSS</p>
+      <p>البرمجة بلغة جافاسكريبت الأساسية</p>
+      <p>تصميم واجهات المستخدم</p>
+    </div>
+     </div>
+
+  <footer>
+    <div class="contact-info">📧 البريد الإلكتروني: <a href="slymanyd5@gmail.com" style="color: white;">slymanyd5@gmail.com</a></div>
+    <div class="social-icons" aria-label="روابط التواصل الاجتماعي">
+      <a href="https://www.facebook.com/share/15Lbngjojp/"_blank" aria-label="فيسبوك" rel="noopener noreferrer">📘</a>
+      <a href="https://www.instagram.com/soleman" target="_blank" aria-label="إنستجرام" rel="noopener noreferrer">📸</a>
+      <a href="https://wa.me/01067639220" target="_blank" aria-label="واتساب" rel="noopener noreferrer">📱</a>
+    </div>
+  </footer>
+</body>
+</html>
+
+        <script>
+  function performSearch(type = 'all') {
+    const input = document.getElementById('search-input');
+    const query = input.value.trim();
+    if (!query) return;
+
+    let url = '';
+
+    switch(type) {
+      case 'news':
+        url = `https://www.google.com/search?q=${encodeURIComponent(query)}&tbm=nws`;
+        break;
+      case 'images':
+        url = `https://www.google.com/search?q=${encodeURIComponent(query)}&tbm=isch`;
+        break;
+      case 'videos':
+        url = `https://www.google.com/search?q=${encodeURIComponent(query)}&tbm=vid`;
+        break;
+      case 'movies':
+        url = `https://www.google.com/search?q=${encodeURIComponent(query + ' أفلام')}`;
+        break;
+      case 'games':
+        url = `https://www.google.com/search?q=${encodeURIComponent(query + ' ألعاب')}`;
+        break;
+      case 'apps':
+        url = `https://www.google.com/search?q=${encodeURIComponent(query + ' تطبيقات')}`;
+        break;
+      default:
+        url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+    }
+
+    window.open(url, '_blank');
+  }
+
+  function startVoiceInput() {
+    const input = document.getElementById('search-input');
+    const micBtn = document.getElementById('mic-button');
+
+    if (!('webkitSpeechRecognition' in window)) {
+      alert('المتصفح لا يدعم الميكروفون');
+      return;
+    }
+
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = 'ar-EG';
+
+    recognition.onstart = () => {
+      micBtn.classList.add('recording');
+      micBtn.title = "التسجيل جاري... اضغط لإيقاف";
+    };
+
+    recognition.onend = () => {
+      micBtn.classList.remove('recording');
+      micBtn.title = "اضغط للتحدث";
+    };
+
+    recognition.onresult = function(event) {
+      input.value = event.results[0][0].transcript;
+      performSearch();
+    };
+
+    recognition.onerror = function() {
+      alert('حدث خطأ في التسجيل الصوتي');
+      micBtn.classList.remove('recording');
+      micBtn.title = "اضغط للتحدث";
+    };
+
+    recognition.start();
+  }
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+   
+    
+      <footer aria-label="روابط التواصل الاجتماعي والمتابعة">
+        تابعنا على اليوتيوب:
+        <a href="" target="_blank" rel="noopener" aria-label="قناة اليوتيوب">
+          <!-- أيقونة يوتيوب SVG -->
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M10 15l5.19-3L10 9v6zM21.8 7.2s-.2-1.4-.82-2.02c-.78-.82-1.65-.83-2.05-.88C15.16 4 12 4 12 4s-3.16 0-6.93.3c-.4.05-1.27.06-2.05.88-.62.62-.82 2.02-.82 2.02S2 9 2 10.8v2.4c0 1.8.21 3.6.21 3.6s.2 1.4.82 2.02c.78.82 1.8.79 2.26.88 1.64.15 6.98.3 6.98.3s3.16 0 6.93-.3c.4-.05 1.27-.06 2.05-.88.62-.62.82-2.02.82-2.02s.21-1.8.21-3.6v-2.4c0-1.8-.21-3.6-.21-3.6z"/>
+          </svg>
+          اليوتيوب
+        
